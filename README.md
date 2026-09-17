@@ -59,7 +59,7 @@ at build time and never committed:
 |--------------------|--------------------------------------------------|
 | `KEYSTORE_B64`     | Your `.jks`/`.keystore` file, base64-encoded      |
 | `STORE_PASSWORD`   | Keystore password                                 |
-| `ALIAS`            | Key alias inside the keystore                     |
+| `KEY_ALIAS`        | Key alias inside the keystore (commonly `upload`) |
 | `KEY_PASSWORD`     | Password for that specific key                    |
 
 To generate the base64 secret from an existing keystore:
@@ -92,7 +92,7 @@ attached when all four are present, so unsigned/local builds don't break.
 ```bash
 export KEYSTORE_PATH=/path/to/release.keystore
 export STORE_PASSWORD=...
-export ALIAS=...
+export KEY_ALIAS=...
 export KEY_PASSWORD=...
 ./gradlew :app:assembleRelease
 ```

@@ -12,7 +12,7 @@ plugins {
 // builds, export the same variables in your shell before running Gradle.
 val keystorePathEnv = System.getenv("KEYSTORE_PATH") ?: "${rootDir}/app/release.keystore"
 val storePasswordEnv = System.getenv("STORE_PASSWORD")
-val keyAliasEnv = System.getenv("ALIAS")
+val keyAliasEnv = System.getenv("KEY_ALIAS")
 val keyPasswordEnv = System.getenv("KEY_PASSWORD")
 val hasSigningEnv = storePasswordEnv != null && keyAliasEnv != null &&
         keyPasswordEnv != null && file(keystorePathEnv).exists()

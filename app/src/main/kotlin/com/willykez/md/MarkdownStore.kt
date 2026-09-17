@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
  *
  * Both locations are app-specific: no runtime storage permission is needed
  * on any supported API level (24+). On first launch only, the bundled
- * assets/md/*.md files are copied in once to seed the library, exactly like
+ * assets/md markdown files are copied in once to seed the library, exactly like
  * unzipping a starter pack — after that, assets/ is never touched again.
  */
 object MarkdownStore {
