@@ -116,7 +116,14 @@ object AppTheme {
             "java" -> 0xFFFF8C69.toInt()
             "xml" -> 0xFF88D5F0.toInt()
             "gradle" -> 0xFF97CC64.toInt()
-            "bash", "shell" -> 0xFFF4E06D.toInt()
+            "dart", "flutter" -> 0xFF54C5F8.toInt()
+            "swift" -> 0xFFFF7A5C.toInt()
+            "js", "jsx", "javascript" -> 0xFFF0DB4F.toInt()
+            "ts", "tsx", "typescript" -> 0xFF3178C6.toInt()
+            "py", "python" -> 0xFF6FB2E8.toInt()
+            "json" -> 0xFFCBCB41.toInt()
+            "yaml", "yml" -> 0xFFCB6C4E.toInt()
+            "bash", "shell", "sh" -> 0xFFF4E06D.toInt()
             else -> text3
         }
     }

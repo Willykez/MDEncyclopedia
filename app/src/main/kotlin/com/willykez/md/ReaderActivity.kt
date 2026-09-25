@@ -1,5 +1,6 @@
 package com.willykez.md
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
@@ -26,6 +27,8 @@ class ReaderActivity : AppCompatActivity() {
     private lateinit var progressWrap: FrameLayout
     private lateinit var fab: View
     private lateinit var titleTv: TextView
+
+    private val headings = mutableListOf<Triple<Int, String, View>>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -109,6 +112,8 @@ class ReaderActivity : AppCompatActivity() {
 
         bar.addView(iconBtn("Aa") { cycleFontSize() })
         bar.addView(mkHSpace(4))
+        bar.addView(iconBtn("☰") { showToc() })
+        bar.addView(mkHSpace(4))
         bar.addView(iconBtn(if (AppTheme.isDark) "☀" else "🌙") { toggleTheme() })
         bar.addView(mkHSpace(4))
         bar.addView(iconBtn("✎") {
@@ -156,13 +161,60 @@ class ReaderActivity : AppCompatActivity() {
     private fun load() {
         val md = MarkdownStore.read(file)
         body.removeAllViews()
-        body.addView(Markdown.buildDocHeaderCard(this, file.nameWithoutExtension.replace('_', ' '), "DOC", file.name))
+        headings.clear()
+
+        val words = md.trim().split(Regex("\\s+")).count { it.isNotBlank() }
+        val minutes = (words / 200).coerceAtLeast(1)
+        val meta = "$words words · $minutes min read"
+
+        body.addView(
+            Markdown.buildDocHeaderCard(
+                this, file.nameWithoutExtension.replace('_', ' '), "DOC", file.name, meta
+            )
+        )
         body.addView(mkVSpace(12))
         val inner = LinearLayout(this)
         inner.orientation = LinearLayout.VERTICAL
-        Markdown.render(this, inner, md) { toast(it) }
+        Markdown.render(
+            this, inner, md,
+            baseDir = file.parentFile,
+            onCopyToast = { toast(it) },
+            onHeading = { level, text, view -> headings.add(Triple(level, text, view)) }
+        )
         body.addView(inner)
         updateProgress(0)
+    }
+
+    // ── Table of contents ───────────────────────────────────────────────
+    private fun showToc() {
+        if (headings.isEmpty()) {
+            toast("No headings in this document")
+            return
+        }
+        val labels = headings.map { (level, text, _) -> "  ".repeat((level - 1).coerceAtLeast(0)) + text }.toTypedArray()
+        AlertDialog.Builder(this)
+            .setTitle("Contents")
+            .setItems(labels) { _, which -> scrollToHeading(which) }
+            .show()
+    }
+
+    private fun scrollToHeading(index: Int) {
+        val target = headings.getOrNull(index)?.third ?: return
+        scroll.post {
+            val y = offsetYRelativeTo(target, body)
+            scroll.smoothScrollTo(0, (y - dp(12)).coerceAtLeast(0))
+        }
+    }
+
+    private fun offsetYRelativeTo(view: View, root: View): Int {
+        var v: View = view
+        var y = 0
+        while (v !== root) {
+            y += v.top
+            val parent = v.parent as? View ?: break
+            v = parent
+        }
+        return y
     }
 
     private fun shareFile() {

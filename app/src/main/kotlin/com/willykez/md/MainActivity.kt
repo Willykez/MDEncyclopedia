@@ -36,6 +36,9 @@ class MainActivity : AppCompatActivity() {
 
     private var allFiles: List<MdFile> = emptyList()
 
+    private enum class SortMode { NAME, MODIFIED }
+    private var sortMode = SortMode.NAME
+
     private val importLauncher = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         if (uris.isNullOrEmpty()) return@registerForActivityResult
         var imported = 0
@@ -111,6 +114,8 @@ class MainActivity : AppCompatActivity() {
         bar.addView(searchInput)
 
         bar.addView(mkHSpace(6))
+        bar.addView(iconBtn("⇅") { showSortMenu() })
+        bar.addView(mkHSpace(4))
         bar.addView(iconBtn("Aa") { cycleFontSize() })
         bar.addView(mkHSpace(4))
         bar.addView(iconBtn(if (AppTheme.isDark) "☀" else "🌙") { toggleTheme() })
@@ -204,9 +209,26 @@ class MainActivity : AppCompatActivity() {
 
     // ── Data / list ──────────────────────────────────────────────────
     private fun refresh() {
-        allFiles = MarkdownStore.listFiles()
+        allFiles = applySort(MarkdownStore.listFiles())
         countChip.text = "${allFiles.size} file${if (allFiles.size == 1) "" else "s"}"
         renderList(allFiles)
+    }
+
+    private fun applySort(files: List<MdFile>): List<MdFile> = when (sortMode) {
+        SortMode.NAME -> files.sortedBy { it.title.lowercase() }
+        SortMode.MODIFIED -> files.sortedByDescending { it.file.lastModified() }
+    }
+
+    private fun showSortMenu() {
+        val options = arrayOf("Name (A–Z)", "Last modified")
+        val current = if (sortMode == SortMode.NAME) 0 else 1
+        AlertDialog.Builder(this)
+            .setTitle("Sort by")
+            .setSingleChoiceItems(options, current) { dialog, which ->
+                sortMode = if (which == 0) SortMode.NAME else SortMode.MODIFIED
+                refresh()
+                dialog.dismiss()
+            }.show()
     }
 
     private fun applyFilter(query: String) {
